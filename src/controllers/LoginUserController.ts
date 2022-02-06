@@ -2,6 +2,7 @@ import { compare } from "bcryptjs";
 import { Request, Response } from "express";
 import { sign } from "jsonwebtoken";
 import { createConnection } from "../postgres";
+import { setRedis } from "../redisConfig";
 
 type User = {
   username: string;
@@ -36,6 +37,8 @@ export class LoginUserController {
     const token = sign({}, process.env.JWT_SECRET, {
       subject: user.id,
     });
+
+    await setRedis(`user-${user.id}`, JSON.stringify(user));
 
     return response.json(token);
   }
